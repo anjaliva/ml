@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll-Linked 3D Carousel - Vyuha</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --bg-card: #0d0d0d;
+            --gold: #C9A84C;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --white: #f0ece2;
+            --gray: #888888;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            /* Give the body a large height so the user can scroll to rotate the carousel */
+            height: 400vh;
+            overflow-x: hidden;
+        }
+
+        /* Sticky container that stays in the viewport while scrolling down */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1500px;
+            overflow: hidden;
+        }
+
+        /* The rotating axle */
+        .orbit-container {
+            position: relative;
+            width: 300px;
+            height: 420px;
+            transform-style: preserve-3d;
+            /* Start facing the first card */
+            transform: rotateY(0deg);
+            /* Smoothly transition when JS updates the transform */
+            transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .orbit-card {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--gold-dim);
+            border-radius: 12px;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 0, 0, 0.5);
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .orbit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        /* 
+           Positions each card in the 3D circle. 
+           translateZ(500px) pushes them far apart. 
+           (In the previous version, it was only 150px).
+        */
+        .orbit-card:nth-child(1) {
+            transform: rotateY(0deg) translateZ(450px);
+        }
+
+        .orbit-card:nth-child(2) {
+            transform: rotateY(120deg) translateZ(450px);
+        }
+
+        .orbit-card:nth-child(3) {
+            transform: rotateY(240deg) translateZ(450px);
+        }
+
+        .card-number {
+            font-size: 5rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(201, 168, 76, 0.4);
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: var(--white);
+            letter-spacing: 2px;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .scroll-instructions {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.6;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translate(-50%, 0);
+            }
+
+            50% {
+                transform: translate(-50%, 10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sticky-wrapper">
+        <div class="orbit-container" id="carousel">
+            <!-- Card 1 -->
+            <div class="orbit-card">
+                <div class="card-number">01</div>
+                <div class="card-title">LEARN</div>
+                <div class="card-desc">Deep-dive into AI, ML, and emerging technologies through workshops.</div>
+            </div>
+            <!-- Card 2 -->
+            <div class="orbit-card">
+                <div class="card-number">02</div>
+                <div class="card-title">EXPERIMENT</div>
+                <div class="card-desc">Push boundaries with hands-on projects and real-world datasets.</div>
+            </div>
+            <!-- Card 3 -->
+            <div class="orbit-card">
+                <div class="card-number">03</div>
+                <div class="card-title">BUILD</div>
+                <div class="card-desc">Turn ideas into working prototypes that solve real problems.</div>
+            </div>
+        </div>
+
+        <div class="scroll-instructions">↓ Scroll Down ↓</div>
+    </div>
+
+    <script>
+        const carousel = document.getElementById('carousel');
+
+        window.addEventListener('scroll', () => {
+            // How far down the user has scrolled
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+
+            // Total scrollable height
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+            // Calculate a percentage of the total scroll (0 to 1)
+            const scrollFraction = scrollTop / maxScroll;
+
+            // Multiply by -360 to smoothly rotate a full 360 degrees as the user scrolls to the bottom
+            // Negative value ensures we rotate to the next card correctly
+            const rotationDegrees = scrollFraction * -360;
+
+            // Apply the rotation dynamically
+            carousel.style.transform = `rotateY(${rotationDegrees}deg)`;
+        });
+    </script>
+</body>
+
+</html>
